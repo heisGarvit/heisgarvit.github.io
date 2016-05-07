@@ -1,32 +1,161 @@
+<!DOCTYPE html>
 <html>
 <title>Garvit Jain</title>
-<link href='css/fontello.css' rel='stylesheet' type='text/css'>
-  <style>
-  @font-face{font-family: 'Droid Sans Mono'; font-style: normal; font-weight: 400; src: local('Droid Sans Mono'), local('DroidSansMono'), url(https://fonts.gstatic.com/s/droidsansmono/v7/ns-m2xQYezAtqh7ai59hJYW_AySPyikQrZReizgrnuw.ttf) format('truetype');}
-    body {
-        background: white }
-    section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%) }
-    i{
-      color : black
-    }
-  </style>
-<body>
-  <section>
-    <pre class="content">
-                                      Shahdara, East Delhi
-                                      India, Postal 110032
-  <strong style="font-size:1.5em;font-family:Droid Sans Mono">Garvit Jain</strong><strong style="font-size:1.5em;">&nbsp;</strong>
-                                      <a href="http://telegram.me/heisGarvit"><i class="icon-paper-plane"></i></a> <a href="http://github.com/heisGarvit"><i class="icon-github-circled"></i></a> <a href="http://fb.me/heisGarvit"><i class="icon-facebook"></i></a> <a href="http://google.com/+GarvitJainGJ"><i class="icon-gplus"></i></a> <a href="http://twitter.com/heisGarvit"><i class="icon-twitter"></i></a> <a href="mailto:heisGarvit@gmail.com"><i class="icon-mail-alt"></i></a>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+<style>
+html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+a:hover{
+  opacity: 1;
+}
+</style>
+<body class="w3-light-grey" background="bg.jpg">
+
+  <!-- w3-content defines a container for fixed size centered content,
+  and is wrapped around the whole page content, except for the footer in this example -->
+  <div class="w3-content" style="max-width:1400px">
+
+    <!-- Header -->
+    <div class="w3-container w3-center w3-padding-hor-64">
+      <a id="fh" href="javascript:Show('home','fh')" class="w3-tooltip fa fa-home fa-3x w3-padding-ver-16" style="color:white;text-decoration: none;">
+        <span style="position:absolute;left:0;bottom:18px"  class="w3-text w3-tag"></span>
+      </a>
+      <a id="fw" href="javascript:Show('work','fw')" class="w3-tooltip fa fa-folder fa-3x w3-padding-ver-16 w3-opacity" style="color:white;text-decoration: none;">
+        <span style="position:absolute;left:0;bottom:18px"  class="w3-text w3-tag"></span>
+      </a>
+      <a id="fc" href="javascript:Show('contact','fc')" class="w3-tooltip fa fa-envelope fa-3x w3-padding-ver-16 w3-opacity" style="color:white;text-decoration: none;">
+        <span style="position:absolute;left:0;bottom:18px"  class="w3-text w3-tag"></span>
+      </a>
+      <a href="https://www.facebook.com/heisGarvit" target="_blank" class="w3-tooltip fa fa-facebook fa-3x w3-padding-ver-16 w3-opacity" style="color:white;text-decoration: none;">
+        <span style="position:absolute;left:0;bottom:18px"  class="w3-text w3-tag"></span>
+      </a>
+    </div>
+    <!-- Home -->
+    <div id="home"class="w3-row">
+      <div class="w3-col l2 w3-hide-small w3-hide-medium" style="">&nbsp;</div>
+      <div class="w3-col l8">
+        <div class="w3-container w3-card-4 w3-margin w3-center" style="background-color:#E9004C; color:white;">
+          <h1 class="w3-right">Corédox</h1>
+          <div class="w3-col l5">
+            <h1><b>Garvit Jain</b></h1>
+            <h4><span class="w3-opacity">CEO, </span></h4>
+          </div>
+          <div class="w3-col l3"><img src="me.jpg" alt="" /></div>
+        </div>
+      </div>
+    </div>
+    <!-- Work -->
+    <div id="work"class="w3-row" style="display:none">
+      <div class="w3-col l2 w3-hide-small w3-hide-medium" style="">&nbsp;</div>
+      <div class="w3-col l8">
+        <div class="w3-margin w3-white">
+          <div class="w3-container w3-row-padding">
+            <div class="w3-center">
+              <h1>Recent Projects</h1>
+              <h4><span class="w3-opacity"></span></h4>
+            </div>
+            <div class="w3-third w3-margin-bottom">
+              <div class="w3-card-4">
+                <img src="project1.png" alt="innovative3ds.com" style="width:100%">
+                <div class="w3-container">
+                  <h3>Innovative 3D Sol.</h3>
+                  <p class="w3-opacity">innovative3ds.com</p>
+                  <p><a href="http://innovative3ds.com" target="_blank"class="w3-btn">Visit</a></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="w3-third w3-margin-bottom">
+              <div class="w3-card-4">
+                <img src="project2.png" alt="mehulmittal.ml" style="width:100%">
+                <div class="w3-container">
+                  <h3>CA Mehul Mittal</h3>
+                  <p class="w3-opacity">mehulmittal.ml</p>
+                  <p><a href="http://mehulmittal.ml" target="_blank"class="w3-btn">Visit</a></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="w3-third w3-margin-bottom">
+              <div class="w3-card-4">
+                <img src="project3.png" alt="instasetup.in" style="width:100%">
+                <div class="w3-container">
+                  <h3>Insta Setup</h3>
+                  <p class="w3-opacity">instasetup.cf</p>
+                  <p><a href="http://instasetup.cf" target="_blank" class="w3-btn">Visit</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p><a href="http://coredox.cf" target="_blank" class="w3-btn">Visit Corédox</a></p>
+          <div id="modal01" class="w3-modal" onclick="this.style.display='none'">
+            <span class="w3-closebtn w3-hover-red w3-text-white w3-xxlarge w3-container w3-display-topright">&times;</span>
+            <div class="w3-modal-content w3-animate-zoom">
+              <img id="img01" style="width:100%">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Contact -->
+<div id="contact"class="w3-row" style="display:none">
+  <div class="w3-col l2 w3-hide-small w3-hide-medium" style="">&nbsp;</div>
+  <div class="w3-col l8">
+    <div class="w3-card-4 w3-margin w3-white">
+      <div class="w3-container w3-padding-hor-8">
+        <form class="w3-container w3-white" action="https://formspree.io/heisGarvit@gmail.com" method="POST">
+          <h1>Contact Me</h1>
+          <div class="w3-group w3-half w3-row-padding">
+            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" name="Name" placeholder="Name">
+          </div>
+          <div class="w3-group w3-half w3-row-padding">
+            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" name="Email" placeholder="Email">
+          </div>
+          <div class="w3-group w3-row-padding">
+            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" name="Phone "placeholder="Phone (Optional)">
+          </div>
+          <div class="w3-group w3-row-padding">
+            <textarea rows="4" cols="50" class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" name="Message" type="text" placeholder="Message"></textarea>
+          </div>
+          <div class="w3-group">
+            <input type="submit" class="w3-btn w3-theme w3-padding-large" value="Send Message">
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+<!-- END GRID -->
+</div>
+
+<!-- END w3-content -->
+</div>
+<script type="text/javascript" language="JavaScript">
+function Show(d,x) {
+  document.getElementById('home').style.display = "none";
+  document.getElementById('work').style.display = "none";
+  document.getElementById('contact').style.display = "none";
+  document.getElementById('fh').className = "w3-tooltip fa fa-home fa-3x w3-padding-ver-16 w3-opacity";
+  document.getElementById('fw').className = "w3-tooltip fa fa-folder fa-3x w3-padding-ver-16 w3-opacity";
+  document.getElementById('fc').className = "w3-tooltip fa fa-envelope fa-3x w3-padding-ver-16 w3-opacity";
+  x = document.getElementById(x);
+  x.classList.remove("w3-opacity");
+  x.className +=" w3-animate-opacity"
+  document.getElementById(d).style.display = "block";
+  d.className +=" w3-animate-opacity"
+}
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+}
+</script>
 
 
-
-  Garvit is a developer who had developed many projects with his <a style="color:black"href="https://coredox.cf">team</a>.</pre>
-  </section>
 </body>
+</html>

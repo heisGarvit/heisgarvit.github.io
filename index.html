@@ -112,27 +112,34 @@ a:hover{
   <div class="w3-col l2 w3-hide-small w3-hide-medium" style="">&nbsp;</div>
   <div class="w3-col l8">
     <div class="w3-card-4 w3-margin w3-white">
-      <div class="w3-container w3-padding-hor-8">
-        <form class="w3-container w3-white" action="https://formspree.io/heisGarvit@gmail.com" method="POST">
+      <div class="w3-container w3-padding-hor-8 w3-white">
           <h1>Contact Me</h1>
           <div class="w3-group w3-half w3-row-padding">
-            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" name="Name" placeholder="Name">
+            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" id="Name" placeholder="Name">
           </div>
           <div class="w3-group w3-half w3-row-padding">
-            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" name="Email" placeholder="Email">
+            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" id="Email" placeholder="Email">
           </div>
           <div class="w3-group w3-row-padding">
-            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" name="Phone "placeholder="Phone (Optional)">
+            <input class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" type="text" id="Phone" placeholder="Phone">
           </div>
           <div class="w3-group w3-row-padding">
-            <textarea rows="4" cols="50" class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" name="Message" type="text" placeholder="Message"></textarea>
+            <textarea rows="4" cols="50" class="w3-input w3-border-0 w3-light-grey w3-padding-hor-12" id="Message" type="text" placeholder="Message"></textarea>
           </div>
+          <div id="smsg" class="w3-container w3-green w3-hide">
+          <span onclick="this.parentElement.className='w3-container w3-green w3-hide'" class="w3-closebtn">&times;</span>
+          <h3>Success!</h3>
+          <p>We shall respond to you shortly.</p>
+        </div>
+        <div id="fmsg" class="w3-container w3-red w3-hide">
+          <span onclick="this.parentElement.className='w3-container w3-red w3-hide'" class="w3-closebtn">&times;</span>
+          <h3>Failed!</h3>
+          <p>Server not responding. Give me a call +91 9560781634 or email me heisGarvit@gmail.com</p>
+        </div>
           <div class="w3-group">
-            <input type="submit" class="w3-btn w3-theme w3-padding-large" value="Send Message">
+            <button class="w3-btn w3-theme w3-padding-large" onClick="sendIt()">Send Message</button>
           </div>
         </div>
-
-      </form>
     </div>
   </div>
 </div>
@@ -160,6 +167,33 @@ function Show(d,x) {
   document.getElementById('home').className = "w3-row w3-hide-large";
   document.getElementById(d).className = "w3-row";
 }
+function sendIt(){
+  var Name = document.getElementById("Name").value;
+  var Email = document.getElementById("Email").value;
+    var Phone = document.getElementById("Phone").value;
+    var Message = document.getElementById("Message").value;
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '//formspree.io/heisgarvit@gmail.com', true);
+  xhr.setRequestHeader("Accept", "application/json");
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  xhr.send("Name=" + Name + "&Email=" + Email + "&Phone=" + Phone + "&Message=" + Message);
+
+    xhr.onloadend = function (res) {
+      if (res.target.status === 200){
+        document.getElementById('smsg').className = "w3-container w3-green";
+      }
+      else {
+        document.getElementById('fmsg').className = "w3-container w3-red";
+      }
+    }
+    var xhrt = new XMLHttpRequest();
+    xhrt.open('POST', 'https://api.telegram.org/bot189613307:AAFETQJVb0Ok4Y43Z56fmh-rCRkeletAqzw/sendMessage', true);
+    xhrt.setRequestHeader("Accept", "application/json");
+    xhrt.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhrt.send("chat_id=75223577&text=New Form Submission on heisgarvit.github.io:\nName : " + Name +"\nEmail : " + Email + "\nPhone : " + Phone + "\nMessage : " + Message);
+}
+
 </script>
 
 

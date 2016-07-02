@@ -11,8 +11,13 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 a:hover{
   opacity: 1;
 }
+body{
+  background-image: url('bg.jpg');
+  background-repeat:no-repeat;
+    background-size:100%;
+}
 </style>
-<body class="w3-light-grey" background="bg.jpg">
+<body class="w3-light-grey">
 
   <!-- w3-content defines a container for fixed size centered content,
   and is wrapped around the whole page content, except for the footer in this example -->
@@ -94,7 +99,7 @@ a:hover{
               </div>
             </div>
           </div>
-          <p><a href="http://coredox.cf" target="_blank" class="w3-btn">Visit Corédox</a></p>
+          <p><a href="http://webices.com" target="_blank" class="w3-btn">Visit Webices.com</a></p>
           <div id="modal01" class="w3-modal" onclick="this.style.display='none'">
             <span class="w3-closebtn w3-hover-red w3-text-white w3-xxlarge w3-container w3-display-topright">&times;</span>
             <div class="w3-modal-content w3-animate-zoom">
@@ -192,6 +197,13 @@ function sendIt(){
     xhrt.setRequestHeader("Accept", "application/json");
     xhrt.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhrt.send("chat_id=75223577&text=New Form Submission on heisgarvit.github.io:\nName : " + Name +"\nEmail : " + Email + "\nPhone : " + Phone + "\nMessage : " + Message);
+
+    var xhrf = new XMLHttpRequest();
+    xhrf.open('POST', 'https://graph.facebook.com/v2.6/me/messages?access_token=EAAYaggT5ijkBADarYlMgbnNo3yqZBVppfGZALS2en3oGj6LIFqS7rkGZA0jE94UymZBhufn3hxiiXYiN56vZCnZCuNzRyiRZByZBj0EdiLrYSJaGlOOjX4AOuCjpFQIA6wtWu2hUszQhtaD9TiNiKUUfRZCy0vH7iXaUCl0NdCUopCwZDZD');
+    xhrf.setRequestHeader('Content-Type', 'application/json');
+    contact_data = "New Form Submission on heisgarvit.github.io:\nName : " + Name +"\nEmail : " + Email + "\nPhone : " + Phone + "\nMessage : " + Message;
+
+    xhrf.send(JSON.stringify({ "recipient": { "id": "1150043321685058" }, "message": { "text": contact_data}}));
 }
 
 </script>

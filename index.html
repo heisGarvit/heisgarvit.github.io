@@ -1,277 +1,612 @@
-<!DOCTYPE HTML>
-
+<!DOCTYPE html>
 <html>
 
 <head>
 	<title>Garvit Jain</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<link rel="stylesheet" href="assets/css/main.css" />
-
 </head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/w3.css">
 
-<body style="overflow-x: scroll;">
+<body style="font-family:'Source Sans Pro', sans-serif; margin-top:5%;">
+<script type="text/javascript" src="/three.min.js"></script>
+<script type="text/javascript" src="/detector.js"></script>
 
-	<!-- Page Wrapper -->
-	<div id="page-wrapper">
+<script id="vs" type="x-shader/x-vertex">
 
-		<!-- Wrapper -->
-		<div id="wrapper">
+	varying vec2 vUv;
 
-			<!-- Panel (Banner) -->
-			<section class="panel banner right">
-				<div class="content color0 span-3-75">
-					<h1 class="major">Hello, I'm
-						<br /> Garvit Jain </h1>
-					<p>I am a
-						<strong>Computer Science</strong> post graduate from Delhi, India.</p>
-					<ul class="actions">
-						<li>
-							<a href="#first" class="button special color1 circle icon fa-angle-right">Next</a>
-						</li>
-					</ul>
-				</div>
-			</section>
+    void main() {
+
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+    }
+
+</script>
+
+<script id="fs" type="x-shader/x-fragment">
+
+	uniform sampler2D map;
+
+    uniform vec3 fogColor;
+    uniform float fogNear;
+    uniform float fogFar;
+
+    varying vec2 vUv;
+
+    void main() {
+
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = texture2D( map, vUv );
+    gl_FragColor.w *= pow( gl_FragCoord.z, 20.0 );
+    gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+    }
+
+</script>
+
+<script type="text/javascript">
+	if (!Detector.webgl)
+		Detector.addGetWebGLMessage();
+
+	var container;
+	var camera, scene, renderer;
+	var mesh, geometry, material;
+
+	var mouseX = 0, mouseY = 0;
+	var start_time = Date.now();
+
+	var windowHalfX = window.innerWidth / 2;
+	var windowHalfY = window.innerHeight / 2;
+
+	init();
+
+	function init() {
+
+		container = document.createElement('div');
+		container.className = "cloud";
+		document.body.appendChild(container);
+
+		// Bg gradient
+
+		var canvas = document.createElement('canvas');
+		canvas.width = 32;
+		canvas.height = window.innerHeight;
+
+		var context = canvas.getContext('2d');
+
+		var gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+		gradient.addColorStop(0, "#1e4877");
+		gradient.addColorStop(0.5, "#4584b4");
+
+		context.fillStyle = gradient;
+		context.fillRect(0, 0, canvas.width, canvas.height);
+
+		//
+
+		camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 3000);
+		camera.position.z = 6000;
+
+		scene = new THREE.Scene();
+
+		geometry = new THREE.Geometry();
+
+		var texture = THREE.ImageUtils.loadTexture('/img/cloud.png', null, animate);
+		texture.magFilter = THREE.LinearMipMapLinearFilter;
+		texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+		var fog = new THREE.Fog(0x4584b4, -100, 3000);
+
+		material = new THREE.ShaderMaterial({
+
+			uniforms: {
+
+				"map": {
+					type: "t",
+					value: texture
+				},
+				"fogColor": {
+					type: "c",
+					value: fog.color
+				},
+				"fogNear": {
+					type: "f",
+					value: fog.near
+				},
+				"fogFar": {
+					type: "f",
+					value: fog.far
+				},
+
+			},
+			vertexShader: document.getElementById('vs').textContent,
+			fragmentShader: document.getElementById('fs').textContent,
+			depthWrite: false,
+			depthTest: false,
+			transparent: true
+
+		});
+
+		var plane = new THREE.Mesh(new THREE.PlaneGeometry(64, 64));
+
+		for (var i = 0; i < 8000; i++) {
+
+			plane.position.x = Math.random() * 1000 - 500;
+			plane.position.y = -Math.random() * Math.random() * 200 - 15;
+			plane.position.z = i;
+			plane.rotation.z = Math.random() * Math.PI;
+			plane.scale.x = plane.scale.y = Math.random() * Math.random() * 1.5 + 0.5;
+
+			THREE.GeometryUtils.merge(geometry, plane);
+
+		}
+
+		mesh = new THREE.Mesh(geometry, material);
+		scene.add(mesh);
+
+		mesh = new THREE.Mesh(geometry, material);
+		mesh.position.z = -8000;
+		scene.add(mesh);
+
+		renderer = new THREE.WebGLRenderer({
+			antialias: false
+		});
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		container.appendChild(renderer.domElement);
+
+		//	document.addEventListener('mousemove', onDocumentMouseMove, false);
+		window.addEventListener('resize', onWindowResize, false);
+
+	}
+
+	function onDocumentMouseMove(event) {
+
+		mouseX = (event.clientX - windowHalfX) * 0.25;
+		mouseY = (event.clientY - windowHalfY) * 0.15;
+
+	}
+
+	function onWindowResize(event) {
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+	}
+
+	function animate() {
+
+		requestAnimationFrame(animate);
+
+		position = ((Date.now() - start_time) * 0.03) % 8000;
+
+		camera.position.x += (mouseX - camera.position.x) * 0.01;
+		camera.position.y += (-mouseY - camera.position.y) * 0.01;
+		camera.position.z = -position + 8000;
+
+		renderer.render(scene, camera);
+
+	}
+
+</script>
+<div id="top">
+	<section class="mainarea w3-content">
+		<div class="w3-card-16 w3-center w3-round-large">
+
+			<div class="w3-xxlarge">
+				<br/>
+				<br/>
+				<span class=" w3-xxlarge w3-wide w3-hover-text-amber  w3-padding-32 w3-roboto">Garvit Jain </span>
+				<br/>
+				<br/>
+				<div class="w3-large w3-wide w3-animate-opacity w3-hover-text-amber w3-exo"> SOFTWARE ARCHITECT & DEVELOPMENT ENGINEER </div>
+				<br/> </div>
+		</div>
+	</section>
+</div>
+
+
+<section class=" w3-center mainarea">
+
+
+	<div class="w3-content w3-container w3-text-white w3-padding-64">
+		<a class=" w3-text-light-grey w3-padding-large w3-opacity hover-opacity w3-wide w3-exo"> PORTFOLIO</a>
+		<p class="w3-center ">
+			<em class="w3-opacity">Here are some my best projects.</em>
+		</p>
+		<br>
+		<br>
 
 
 
-			<!-- Panel (Spotlight) -->
-			<section class="panel spotlight medium left">
+		<div class="w3-content">
 
-				<div class="intro joined">
-					<h2 class="major">Education</h2>
-				</div>
-				<div class="content span-9">
-					<p>
-						<b class="major">Advanced Post Graduate Diploma in Computer Applications - 2018</b>
-						<br> - Indira Gandhi National Open University</p>
-					<p>
-						<b class="major">Post Graduate Diploma in Computer Applications - 2017</b>
-						<br> - Indira Gandhi National Open University</p>
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
 
-					<p>
-						<b class="major">Bachelors of Computer Applications - 2016</b>
-						<br> - Guru Gobind Singh Indraprastha University</p>
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 1. License Management
+								<br> &oline;&oline;&oline;&oline; &nbsp; web app</span>
 
-					<p>
-						<b class="major">12
-							<sup>th</sup> Grade - Central Board Of Secondary Education</b>
-						<br> - Bhai Parmanand Vidya Mandir - 2013</p>
-
-					<p>
-						<b class="major">10
-							<sup>th</sup> Grade - Central Board Of Secondary Education</b>
-						<br> - St. John's Academy - 2011</p>
-				</div>
-				<div class="image filtered tinted" data-position="top right">
-					<img src="images/pic02.jpg" alt="" />
-				</div>
-			</section>
-
-			<section class="panel color1">
-				<div class="intro joined">
-					<h2 class="major">Awards</h2>
-
-
-					<ul class="alt">
-						<li>School Topper in Olympiad.</li>
-						<li>Overall Topper in Class 11.</li>
-						<li>2
-							<sup>nd</sup> position in zonal level inter school skit competition.</li>
-						<li>6 times full attendance awards in school.</li>
-						<li>&nbsp;</li>
-					</ul>
-				</div>
-				<div class="inner joined"></div>
-			</section>
-
-			<!-- Panel -->
-			<!-- Panel -->
-			<section class="panel color2-alt">
-				<div class="intro color2">
-					<h2 class="major">Projects
-						<br> Contributed </h2>
-				</div>
-				<div class="inner columns divided">
-
-					<div class="span-3">
-						<h4>Muski Roll Game</h4>
-						<blockquote>
-							HTML5 game written on phaser.io framework.
-							<br>
-							<a href="//heisgarvit.github.io/game.html" target="_blank">Visit : heisgarvit.github.io/game.html</a>
-						</blockquote>
-						<br>
-						<h4>Setango Travel Website</h4>
-						<blockquote>
-							Travel Package showcase & booking website. Developed backend in golang & CRM that generates pdf on the server.
-							<br>
-							<a href="https://setangotravel.com" target="_blank">Visit : Setangotravel.com</a>
-						</blockquote>
-						<br>
-						<h4>Memes App</h4>
-						<blockquote>
-							Android App having backend written in golang. Backend converts jpg/png to webp format on server & serve it to app.
-							<br>
-							<a href="https://play.google.com/store/apps/details?id=com.webices.stupidity" target="_blank">Get app on playstore : Memes & Stupidity</a>
-						</blockquote>
-
+					<div class="w3-container">
+						<ul>
+							<li>Generative Programing</li>
+							<li>GraphQL</li>
+							<li>Angular</li>
+							<li>Nest.JS + TypeScript</li>
+							<li>Node.JS</li>
+							<li>Postgres + TypeORM</li>
+							<li>Headless Chrome</li>
+						</ul>
 					</div>
 
-					<div class="span-3">
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/desktop.svg">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">License management software</div>
+				</div>
+			</div>
 
-						<h4>Systematic Studies Android App</h4>
-						<blockquote>
-							The app facilitates students to download testpapers with solutions on various subjects and provides video links for the same.
-							The app also features phone number verification. Also app streams subscription based video lectures.
-							<br>
-							<a href="https://play.google.com/store/apps/details?id=com.webices.systematic" target="_blank"> Get app on playstore : Systematic Studies</a>
-						</blockquote>
 
-						<br>
 
-						<h4>K.D. Dental &amp; Medical Centre's Website</h4>
-						<blockquote>
-							Single mobile responsive webpage designed Website with google map embedded and elegant footer curtain reveal effect tailor
-							made to cater the needs of K.D. Dental &amp; Medical Centre.
-							<br>
-							<a href="http://kddmcentre.com" target="_blank"> Visit : kddmcentre.com</a>
-						</blockquote>
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
 
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 2. Posify
+								<br> &oline;&oline;&oline;&oline; &nbsp; web app</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Angular</li>
+							<li>Python + Flask</li>
+							<li>Celery + RabbitMQ</li>
+							<li>Postgres + SQLAlchemy</li>
+							<li>Redis</li>
+							<li>AWS Load balancer</li>
+							<li>Elasticsearch APM</li>
+						</ul>
+						<a href="//posify.in" target="_blank" class="w3-exo  ">Posify.in &UpperRightArrow;</a>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/desktop.svg">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">Point of sale billing software.</div>
+				</div>
+			</div>
+
+
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 3. Waiter
+								<br> &oline;&oline;&oline;&oline; &nbsp; mobile app</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Ionic</li>
+							<li>Android + iOS</li>
+							<li>Rest API</li>
+							<li>Bluetooth printing</li>
+							<li>OTA Updates</li>
+							<li>Elasticsearch APM</li>
+						</ul>
+						<a href="https://play.google.com/store/apps/details?id=in.posify.captain" target="_blank" class="w3-exo  ">Play Store &UpperRightArrow;</a>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/mobile.svg">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">Restaurant Waiter's Ordering app</div>
+				</div>
+			</div>
+
+
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 4. Bolt Data Lake
+								<br> &oline;&oline;&oline;&oline; &nbsp; microservice</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Go Language</li>
+							<li>RabbitMQ</li>
+							<li>Elasticsearch</li>
+							<li>Redis Stack (Time-series)</li>
+							<li>Tile38</li>
+							<li>In Memory Huge Cache-ing</li>
+							<li>TimescaleDB</li>
+							<li>IOT Volt to Fuel Litres</li>
+							<li>1 million RPM</li>
+						</ul>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/web.svg" style="width: 70%; margin-left: auto">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">Realtime Cross continent GPS data processing microservice</div>
+				</div>
+			</div>
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 5. Synco Admin
+								<br> &oline;&oline;&oline;&oline; &nbsp; Web app</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Angular</li>
+							<li>Python + Flask</li>
+							<li>Postgres + SQLAlchemy</li>
+							<li>Celery + RabbitMQ</li>
+							<li>GraphQL</li>
+							<li>8 Microservices</li>
+							<li>Elasticsearch APM</li>
+						</ul>
+						<a href="https://synco.roadcast.co.in" target="_blank" class="w3-exo  ">Synco.roadcast.co.in &UpperRightArrow;</a>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/desktop.svg">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">Last Mile Delivery Solution</div>
+				</div>
+			</div>
+
+
+
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 6. iFom Fuse
+								<br> &oline;&oline;&oline;&oline; &nbsp; mobile app</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Ionic</li>
+							<li>Android + iOS</li>
+							<li>Rest API</li>
+							<li>GPS Tracking</li>
+							<li>For Tata Communications</li>
+						</ul>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/mobile.svg">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">Hybrid mobile app</div>
+				</div>
+			</div>
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 7. Bolt Admin
+								<br> &oline;&oline;&oline;&oline; &nbsp; Web app</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Angular</li>
+							<li>Python + Flask</li>
+							<li>Postgres + SQLAlchemy</li>
+							<li>Celery + RabbitMQ</li>
+							<li>Redis</li>
+							<li>TimescaleDB</li>
+							<li>Microservice</li>
+							<li>Elasticsearch APM</li>
+						</ul>
+						<a href="https://bolt.roadcast.net" target="_blank" class="w3-exo  ">Bolt.roadcast.net &UpperRightArrow;</a>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/desktop.svg">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">IOT GPS Tracking Software</div>
+				</div>
+			</div>
+
+
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 8. Reverse Geocode
+								<br> &oline;&oline;&oline;&oline; &nbsp; microservice</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>Go Language</li>
+							<li>6 million address cached in memory</li>
+							<li>20 micro-seconds response time</li>
+							<li>Lat-Lng to human address</li>
+							<li>Pelias + Elasticsearch</li>
+						</ul>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/web.svg" style="width: 70%; margin-left: auto">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">Lat-Lng to address api</div>
+				</div>
+			</div>
+
+
+			<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+				<div class="w3-half w3-padding-large w3-exo">
+					<br/>
+					<span class="w3-xxlarge w3-exo"> 9. GPS Data Ingest
+								<br> &oline;&oline;&oline;&oline; &nbsp; microservice</span>
+
+					<div class="w3-container">
+						<ul>
+							<li>TCP Socket</li>
+							<li>Go Language</li>
+							<li>20 micro-seconds response time</li>
+							<li>Huge Volume of Data Process</li>
+						</ul>
+					</div>
+
+				</div>
+				<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+					<img src="img/web.svg" style="width: 70%; margin-left: auto">
+					<br><br>
+					<div class=" w3-exo w3-xlarge ">TCP Socket Communication</div>
+				</div>
+			</div>
+
+			<a onclick="loadMore(this, document.getElementById('more'))" class="w3-hover-text-amber w3-exo w3-btn w3-xlarge w3-transparent w3-padding-large hover-opacity w3-wide shake-slow shake-constant shake-constant--hover">
+				LOAD MORE</a>
+
+			<div id="more" style="display: block">
+				<div class="w3-row w3-brown-custom w3-padding-large w3-left-align" style="border-radius : 60px 0 60px 0; margin-top: 40px; margin-bottom: 60px">
+
+					<div class="w3-half w3-padding-large w3-exo">
+						<br/>
+						<span class="w3-xxlarge w3-exo"> 10. Setango Travel's
+								<br> &oline;&oline;&oline;&oline; &nbsp; CRM & CMS</span>
+
+						<div class="w3-container">
+							<ul>
+								<li>Go Language</li>
+								<li>Bootstrap</li>
+								<li>Rest API</li>
+								<li>MySQL</li>
+								<li>Phantom JS</li>
+							</ul>
+						</div>
 
 					</div>
-					<div class="span-3">
-						<h4>S.S. Katyal &amp; Company's Website</h4>
-						<blockquote>
-							Another mobile responsive designed Website with a admin control panel to modify news and set email reminders.
-							<br>
-							<a href="http://sskatyalco.in" target="_blank"> Visit : sskatyalco.in</a>
-						</blockquote>
-
-
-						<h4>C.A. Gautam Sethi's Website</h4>
-						<blockquote>
-							Website feature dynamic content served via golang and nginx as frontend proxy, website also serves api to Systematic Studies
-							app.
-							<br>
-							<a href="http://cagautamsethi.com" target="_blank"> Visit : cagautamsethi.com</a>
-						</blockquote>
-
-
-						<h4>Rohtak R.W.A. Website</h4>
-						<blockquote>
-							Website features PayU Payment Gateway &amp; the contents of website can be modified through tailor made admin panel.
-							<br>
-							<a href="http://rohtakrwa.in" target="_blank"> Visit : rohtakrwa.in</a>
-						</blockquote>
-
-
-					</div>
-					<div class="span-3">
-						<h4>Minion Bot</h4>
-						<blockquote>
-							A physical Machine built with raspberry pi and servo motors. A python script was used to control the movement remotely over WiFi.
-						</blockquote>
-
-
-						<h4>Big Letter Bot</h4>
-						<blockquote>
-							A bot written on Telegram Messenger's Bot Api that returns the ASCII Art of characters sent to it. Node.Js was used to build it and openshift cloud is used as hosting.
-							<br>
-							<a href="http://telegram.me/BigLetterBot" target="_blank"> Visit : telegram.me/BigLetterBot</a>
-						</blockquote>
-
-
-						<h4>Banking Software</h4>
-						<blockquote>
-							Java Swing based app that uses MySQL as database to store bank transactions. The project was built for 12 class board practical exam.
-						</blockquote>
-
-
-					</div>
-					<div class="span-3">
-
-						<h4>Traffic Officer</h4>
-						<blockquote>
-							Game Built for Nasscom Byog 2017 Game Jam.
-							<br>
-							<a href="http://gamedev.nasscom.in/game/traffic-officer-team-skittle" target="_blank"> Visit : gamedev.nasscom.in</a>
-						</blockquote>
-
-						<h4>Moker Buster</h4>
-						<blockquote>
-							A Whac-A-Mole kind of arcade game built using C# on Unity Studio.
-						</blockquote>
-
-
-						<h4>Elude-A-Hitch</h4>
-						<blockquote>
-							A simple Helicopter controlling game to avoid obstacles like building. Built using Unity Studio for Desktop.
-						</blockquote>
-
-
-						<h4>Skittles</h4>
-						<blockquote>
-							A bowling pin game in which player have to avoid pin getting hit by ball.
-						</blockquote>
-
-
+					<div class="w3-half w3-center">
+							<span class="w3-hide-small">
+								<br><br><br> </span>
+						<img src="img/web.svg" style="width: 70%; margin-left: auto">
+						<br><br>
+						<div class=" w3-exo w3-xlarge ">Setango Travel's Official <br> Travel booking web app </div>
 					</div>
 				</div>
-				<div class="intro color2">
-					<h2 class="major">Technologies</h2>
-					<p>
-						Go
-						<br> SQL
-						<br> PHP
-						<br> Angular
-						<br> JavaScript
-						<br> HTML5
-						<br> CSS3
-						<br> JavaFX
-						<br> Android
-						<br> Unity Studio
-						<br> Phaser.io
-					</p>
-				</div>
-			</section>
 
-			<!-- Panel -->
-			<section class="panel color4-alt">
-				<div class="intro joined color4">
-					<h2 class="major">Contact </h2>
-				</div>
-				<div class="inner columns divided">
+			</div>
 
-					<ul class="contact-icons color1">
-						<li class="icon fa-linkedin">
-							<a href="https://www.linkedin.com/in/heisGarvit/" target="_blank">linkedin.com/in/heisGarvit</a>
-						</li>
-						<li class="icon fa-facebook">
-							<a href="https://facebook.com/heisGarvit" target="_blank">facebook.com/heisGarvit</a>
-						</li>
-						<li class="icon fa-github">
-							<a href="https://github.com/heisGarvit" target="_blank">github.com/heisGarvit</a>
-						</li>
-						<li class="icon fa-envelope">
-							<a href="mailto:heisGarvit@gmail.com">heisGarvit@gmail.com</a>
-						</li>
-						<li class="icon fa-paper-plane">
-							<a href="http://telegram.me/heisGarvit" target="_blank">@heisGarvit</a>
-						</li>
-					</ul>
-				</div>
-			</section>
+			<br/>
+			<br/>
+
+		</div>
+	</div>
+
+</section>
 
 
 
+<section class="mainarea w3-container w3-text-grey w3-padding-32 w3-large" style="background-color:#1b1918;">
+	<div class="w3-content ">
+
+		<div class="w3-container w3-padding-64 w3-exo">
+			<div class=" w3-exo  w3-xlarge w3-transparent w3-padding-large  w3-wide w3-center "> LINKS</div>
+
+			<table style="margin-left: auto; margin-right: auto">
+				<tr>
+					<td >Linkedin</td>
+					<td ><a href="//linkedin.com/in/heisGarvit" target="_blank" class="w3-hover-text-amber">- linkedin.com/in/heisGarvit &UpperRightArrow;</a></td>
+				</tr>
+				<tr>
+					<td >StackOverflow </td>
+					<td ><a href="https://stackoverflow.com/users/5806017/garvit-jain" target="_blank" class="w3-hover-text-amber">  - stackoverflow.com/users/5806017 &UpperRightArrow;</a></td>
+				</tr>
+				<tr>
+					<td >GitHub</td>
+					<td ><a href="https://github.com/heisGarvit" target="_blank" class="w3-hover-text-amber">  - github.com/heisGarvit &UpperRightArrow;</a></td>
+				</tr>
+				<tr>
+					<td >Curriculum Vitae &nbsp; &nbsp; &nbsp;</td>
+					<td ><a href="https://docs.google.com/document/d/e/2PACX-1vSOHKRd5z4_Oml1Kaf5h486x2ixuuxS8NT3gAxECW463joIAEQzrp_eZvxXNsfV2PQqiB2duSpV7TqJ/pub" target="_blank" class="w3-hover-text-amber">  - View Experience & Education &UpperRightArrow;</a></td>
+				</tr>
+			</table>
 
 		</div>
 
+		<div class="w3-center w3-small">
+			Portfolio Last Updated August 2023
+		</div>
+
+
 	</div>
+</section>
 
-
-
+<div id="wrapper">
+	<p class="firefly" id="h_1">
+		<img src="/img/02.png" height="48" width="49" alt="">
+	</p>
+	<p class="firefly" id="h_2">
+		<img src="/img/02.png" alt="">
+	</p>
+	<p class="firefly" id="h_3">
+		<img src="/img/03.png" height="59" width="54" alt="">
+	</p>
+	<p class="firefly" id="h_4">
+		<img src="/img/02.png" height="48" width="49" alt="">
+	</p>
+	<p class="firefly_stay" id="h_6">
+		<img src="/img/03.png" height="59" width="54" alt="">
+	</p>
+	<p class="firefly_stay" id="h_7">
+		<img src="/img/02.png" height="48" width="49" alt="">
+	</p>
+	<p class="firefly_stay" id="h_5">
+		<img src="/img/02.png" height="48" width="49" alt="">
+	</p>
+	<p class="firefly_stay" id="h_8">
+		<img src="/img/03.png" height="59" width="54" alt="">
+	</p>
+</div>
+<script type="text/javascript" language="JavaScript">var fly = document.getElementsByClassName('firefly'); var rotx = 0; var roty = 0; var firefly_moving = function () { rotx = rotx + 0.5; roty = roty + 0.1; if (rotx > 360) rotx -= 360; if (roty > 360) roty -= 360; var i = fly.length; while (i--) { fly[i].style.marginLeft = (Math.cos(rotx * Math.PI / 180) * 300 + 34.5) + 'px'; fly[i].style.marginTop = (Math.sin(roty * Math.PI / 180) * 200 + 34) + 'px'; } setTimeout(function () { firefly_moving(); }, 20) }
+firefly_moving();
+function loadMore(toHideElement, toShowElement) {
+	toHideElement.style.display = "none";
+	toShowElement.style.display = "block";
+}
+</script>
 </body>
 
 </html>
